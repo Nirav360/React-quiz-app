@@ -12,10 +12,10 @@ const useFetchQuestions = (url) => {
         if (!response.ok) throw new Error(response.statusText);
         const json = await response.json();
         setIsPending(false);
-        setData(json[0]);
+        setData(json);
         setError(null);
       } catch (error) {
-        setError(`${error} Could not Fetch Data `);
+        setError(`${error}`);
         setIsPending(false);
       }
     };
