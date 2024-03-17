@@ -7,9 +7,11 @@ import {
   CardContent,
   Typography,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
-const QuizPage = ({ data }) => {
+const QuizPage = () => {
+  const location = useLocation();
+  const data = location.state;
   const [activeQuestion, setActiveQuestion] = useState(0);
   const [selectedAnswer, setSelectedAnswer] = useState(false);
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState(null);
@@ -25,7 +27,6 @@ const QuizPage = ({ data }) => {
   const navigate = useNavigate();
 
   const onClickNext = (finalAnswer) => {
-    console.log(data);
     setSelectedAnswerIndex(null);
     setCounter(60);
     setResult((prev) =>
@@ -70,96 +71,106 @@ const QuizPage = ({ data }) => {
   }, []);
   return (
     <>
-      <Card className="customcard !rounded-lg">
-        {!showResult ? (
-          <>
-            <CardContent>
-              <div className="p-2 border border-solid rounded-lg">
-                <div className="mx-8">
-                  <div className="flex justify-between font-extrabold text-2xl m-4">
-                    <h1>
-                      Question {activeQuestion + 1}/{data.totalQuestions}
-                    </h1>
-                    <span
-                      style={{
-                        color: `${
-                          counter > 30
-                            ? "green"
-                            : counter > 15
-                            ? "orange"
-                            : "red"
-                        }`,
-                      }}
+      {data && (
+        <Card className="customcard !rounded-lg" elevation={10}>
+          {!showResult ? (
+            <>
+              <CardContent>
+                <div className="p-2 border border-solid rounded-lg">
+                  <div className="mx-8">
+                    <div className="flex justify-between font-extrabold text-2xl m-4">
+                      <h1>
+                        Question {activeQuestion + 1}/{data.totalQuestions}
+                      </h1>
+                      <span
+                        style={{
+                          color: `${
+                            counter > 30
+                              ? "green"
+                              : counter > 15
+                              ? "orange"
+                              : "red"
+                          }`,
+                        }}
+                      >
+                        {counter}
+                      </span>
+                    </div>
+                    <Typography
+                      variant="h6"
+                      component="div"
+                      className="p-4 text-center"
                     >
-                      {counter}
-                    </span>
+                      {data.questions[activeQuestion].question}
+                    </Typography>
                   </div>
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    className="p-4 text-center"
-                  >
-                    {data.questions[activeQuestion].question}
-                  </Typography>
                 </div>
+                <ol className="cursor-pointer">
+                  {data.questions[activeQuestion].choices.map(
+                    (answer, index) => (
+                      <li
+                        className={
+                          selectedAnswerIndex === index
+                            ? "selected-answer"
+                            : null
+                        }
+                        onClick={() => onAnswerSelected(answer, index)}
+                        key={index}
+                      >
+                        {answer}
+                      </li>
+                    )
+                  )}
+                </ol>
+              </CardContent>
+              <CardActions className="float-right mr-4">
+                <Button
+                  size="small"
+                  onClick={() => onClickNext(selectedAnswer)}
+                  variant="contained"
+                  disabled={selectedAnswerIndex === null}
+                >
+                  {activeQuestion === data.totalQuestions - 1
+                    ? "Finish"
+                    : "Next"}
+                </Button>
+              </CardActions>
+            </>
+          ) : (
+            <>
+              <h1 className="text-center font-extrabold text-3xl m-4">
+                Result
+              </h1>
+              <CardContent className="m-4">
+                <Typography variant="h5" component="div" className="p-4">
+                  Total Questions:
+                  <span className="font-bold">{data.totalQuestions}</span>
+                </Typography>
+                <Typography variant="h5" component="div" className="p-4">
+                  Total Score: <span className="font-bold">{result.score}</span>
+                </Typography>
+                <Typography variant="h5" component="div" className="p-4">
+                  Total Correct Answers:
+                  <span className="font-bold">{result.correctAnswers}</span>
+                </Typography>
+                <Typography variant="h5" component="div" className="p-4">
+                  Total Wrong Answers:
+                  <span className="font-bold">{result.wrongAnswers}</span>
+                </Typography>
+              </CardContent>
+              <div className="text-center m-4">
+                <Button
+                  size="small"
+                  onClick={() => navigate("/")}
+                  variant="contained"
+                >
+                  Home
+                </Button>
               </div>
-              <ol className="cursor-pointer">
-                {data.questions[activeQuestion].choices.map((answer, index) => (
-                  <li
-                    className={
-                      selectedAnswerIndex === index ? "selected-answer" : null
-                    }
-                    onClick={() => onAnswerSelected(answer, index)}
-                    key={index}
-                  >
-                    {answer}
-                  </li>
-                ))}
-              </ol>
-            </CardContent>
-            <CardActions className="float-right mr-4">
-              <Button
-                size="small"
-                onClick={() => onClickNext(selectedAnswer)}
-                variant="contained"
-                disabled={selectedAnswerIndex === null}
-              >
-                {activeQuestion === data.totalQuestions - 1 ? "Finish" : "Next"}
-              </Button>
-            </CardActions>
-          </>
-        ) : (
-          <>
-            <h1 className="text-center font-extrabold text-3xl m-4">Result</h1>
-            <CardContent className="m-4">
-              <Typography variant="h5" component="div" className="p-4">
-                Total Questions:
-                <span className="font-bold">{data.totalQuestions}</span>
-              </Typography>
-              <Typography variant="h5" component="div" className="p-4">
-                Total Score: <span className="font-bold">{result.score}</span>
-              </Typography>
-              <Typography variant="h5" component="div" className="p-4">
-                Total Correct Answers:
-                <span className="font-bold">{result.correctAnswers}</span>
-              </Typography>
-              <Typography variant="h5" component="div" className="p-4">
-                Total Wrong Answers:
-                <span className="font-bold">{result.wrongAnswers}</span>
-              </Typography>
-            </CardContent>
-            <div className="text-center m-4">
-              <Button
-                size="small"
-                onClick={() => navigate("/")}
-                variant="contained"
-              >
-                Home
-              </Button>
-            </div>
-          </>
-        )}
-      </Card>
+            </>
+          )}
+        </Card>
+      )}
     </>
   );
 };
